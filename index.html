@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Mapeamento dos grupos de pesquisa sobre morte e luto no Brasil. Comitê de Pesquisa da ABMLuto.">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Mapa dos Grupos de Morte e Luto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: coluna única pensada para o celular (acesso via QR code no painel), com a mesma paleta do painel impresso */
+:root{
+  /* cores extraídas do PDF do painel; aparência única clara, como o impresso */
+  --ground:#bcd2dd;        /* fundo azul acinzentado */
+  --sheet:#f4f6f7;         /* blocos claros */
+  --ink:#061439;           /* títulos e texto principal */
+  --text:#061439;
+  --muted:#4a5a72;
+  --line:#d9e2e8;
+  --accent:#173557;        /* barras escuras e botões */
+  --mid:#305a78;
+  --accent-soft:#7491a5;   /* barras claras */
+  --chip:#d9e2f2;          /* azul claro do mapa */
+  --focus:#305a78;
+  --display:"Outfit","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:14px;
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+.sheet{background:var(--sheet);border-radius:var(--r);padding:clamp(20px,4vw,36px)}
+h1,h2,h3{font-family:var(--display);color:var(--ink);text-wrap:balance;margin:0}
+h2{font-size:1.25rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Cabeçalho */
+.eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header.sheet{display:flex;flex-direction:column;gap:14px}
+header h1{font-size:clamp(1.55rem,4.6vw,2.3rem);font-weight:700;line-height:1.12;text-transform:uppercase}
+.authors{font-size:.9rem;color:var(--muted);max-width:65ch}
+
+/* Frase central, como no painel */
+.thesis{font-family:var(--display);font-weight:700;color:var(--ink);text-transform:uppercase;font-size:clamp(1.35rem,4.2vw,2.05rem);line-height:1.18;text-wrap:balance;padding-block:8px;text-align:center}
+
+/* Ações */
+.cta{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:620px){.cta{grid-template-columns:1.3fr 1fr}}
+.btn{display:flex;flex-direction:column;gap:2px;justify-content:center;text-decoration:none;border-radius:12px;padding:16px 18px;font-family:var(--display);font-weight:600;font-size:1.05rem;border:2px solid var(--accent)}
+.btn small{font-family:var(--body);font-weight:400;font-size:.85rem;opacity:.85}
+.btn.primary{background:var(--accent);color:var(--sheet)}
+.btn.secondary{background:transparent;color:var(--accent)}
+.btn[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
+/* Números */
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-radius:12px;overflow:hidden;margin-top:18px}
+@media (min-width:620px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{background:var(--sheet);padding:14px 12px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-family:var(--display);font-size:1.9rem;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.85rem;color:var(--muted)}
+.lead{margin-top:16px;max-width:65ch}
+
+/* Gráfico de anos */
+.chart{margin-top:18px}
+.chart figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}
+.chart svg{display:block;width:100%;height:auto}
+
+/* Lista de grupos */
+.tools{display:grid;gap:10px;grid-template-columns:1fr;margin-block:16px 6px}
+@media (min-width:620px){.tools{grid-template-columns:2fr 1fr 1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:0}
+input,select{font:inherit;font-size:1rem;color:var(--text);background:var(--sheet);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;text-transform:none;letter-spacing:0;font-weight:400}
+.count{font-size:.9rem;color:var(--muted)}
+.list{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column}
+.g{border-top:1px solid var(--line);padding-block:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.g h3{font-size:1.05rem;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:.82rem}
+.chip{background:var(--chip);color:var(--text);border-radius:999px;padding:2px 10px;font-variant-numeric:tabular-nums}
+.chip.luto{background:var(--accent);color:var(--sheet)}
+.chip.warn{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+.inst{font-size:.9rem;color:var(--muted)}
+details{font-size:.92rem}
+summary{cursor:pointer;color:var(--accent);font-weight:600;width:fit-content}
+details ul{margin:8px 0 0;padding-left:1.1em;display:flex;flex-direction:column;gap:4px}
+.lider{font-size:.88rem;color:var(--muted)}
+.empty{padding:20px 0;color:var(--muted)}
+
+/* Método */
+.flow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;font-variant-numeric:tabular-nums}
+.step{flex:1 1 140px;border-radius:10px;padding:10px 12px;background:var(--chip);display:flex;flex-direction:column;gap:2px}
+.step b{font-family:var(--display);font-size:1.4rem;color:var(--ink);line-height:1.1}
+.step span{font-size:.85rem;color:var(--muted)}
+.step.final{background:var(--accent)}
+.step.final b,.step.final span{color:var(--sheet)}
+.prose{display:flex;flex-direction:column;gap:10px;max-width:65ch;margin-top:12px}
+
+footer.sheet{font-size:.9rem;display:flex;flex-direction:column;gap:10px;color:var(--muted)}
+footer b{color:var(--ink)}
+.copy{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy button{font:inherit;font-size:.82rem;background:var(--chip);color:var(--text);border:0;border-radius:8px;padding:4px 10px;cursor:pointer}
+@media (prefers-reduced-motion:no-preference){.btn{transition:transform .15s}.btn:hover{transform:translateY(-1px)}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="sheet">
+    <p class="eyebrow">Painel · 56ª Reunião Anual da Sociedade Brasileira de Psicologia</p>
+    <h1>Grupos de pesquisa sobre morte e luto no Brasil: resultados preliminares</h1>
+    <p class="authors">Gislaine Leoncio Motti, Danusa de Almeida Machado, Regina Lúcia dos Reis e Silva, Carolina Assman, Gláucia Rezende Tavares, Marília A. de Freitas Aguiar e Ivânia Jann Luna · Comitê de Pesquisa da ABMLuto</p>
+  </header>
+
+  <section class="sheet" aria-labelledby="t-tese">
+    <p id="t-tese" class="thesis">Mais da metade dos grupos de pesquisa sobre morte no Brasil foi criada a partir de 2020, mas apenas um terço tem linhas dedicadas ao luto</p>
+  </section>
+
+  <section class="cta" aria-label="Participe">
+    <a class="btn primary" id="btn-form" href="#" target="_blank" rel="noopener">Seu grupo não está aqui?<small>Indique um grupo ou corrija dados em 2 minutos</small></a>
+    <a class="btn secondary" id="btn-sheet" href="#" target="_blank" rel="noopener">Abrir a planilha<small>Nome, instituição, área e situação dos 31 grupos</small></a>
+  </section>
+
+  <section class="sheet" aria-labelledby="t-num">
+    <h2 id="t-num">O que encontramos</h2>
+    <div class="stats">
+      <div class="stat"><b>31</b><span>grupos de pesquisa</span></div>
+      <div class="stat"><b>28</b><span>instituições</span></div>
+      <div class="stat"><b>16</b><span>unidades federativas</span></div>
+      <div class="stat"><b>383</b><span>integrantes</span></div>
+    </div>
+    <p class="lead">Os grupos se concentram no Sudeste (14) e nas Ciências Humanas (17), com a Psicologia como área mais frequente (9). Das 85 linhas de pesquisa cadastradas, 22 mencionam o luto, distribuídas em 12 grupos. 24 grupos não declaram instituições parceiras.</p>
+    <figure class="chart" style="margin-inline:0;margin-bottom:0">
+      <svg id="chart" viewBox="0 0 640 210" role="img" aria-label="Número de grupos por ano de formação, de 2000 a 2026"></svg>
+      <figcaption>Grupos por ano de formação. Em destaque, os 17 criados a partir de 2020 (2026: até setembro).</figcaption>
+    </figure>
+  </section>
+
+  <section class="sheet" aria-labelledby="t-grupos">
+    <h2 id="t-grupos">Os 31 grupos</h2>
+    <div class="tools">
+      <label class="f" for="q">Buscar<input id="q" type="search" placeholder="Nome, instituição, área ou liderança" autocomplete="off"></label>
+      <label class="f" for="fr">Região<select id="fr"><option value="">Todas</option></select></label>
+      <label class="f" for="fa">Grande área<select id="fa"><option value="">Todas</option></select></label>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+    <ul class="list" id="list"></ul>
+  </section>
+
+  <section class="sheet" aria-labelledby="t-met">
+    <h2 id="t-met">Como fizemos</h2>
+    <div class="prose">
+      <p>Pesquisa documental no Diretório dos Grupos de Pesquisa do CNPq, em setembro de 2026, com os descritores luto, morte, tanatologia, cuidados paliativos, finitude, perdas, posvenção e suicídio.</p>
+      <p>Foram excluídos registros duplicados, grupos em que o termo aparecia com outro sentido (como morte celular) e grupos sem luto no nome e sem linhas de pesquisa sobre o luto.</p>
+    </div>
+    <div class="flow" aria-label="Etapas da triagem">
+      <div class="step"><b>83</b><span>registros encontrados</span></div>
+      <div class="step"><b>−9</b><span>duplicados</span></div>
+      <div class="step"><b>−15</b><span>sem relação com o tema</span></div>
+      <div class="step"><b>−28</b><span>sem linhas sobre luto</span></div>
+      <div class="step final"><b>31</b><span>grupos incluídos</span></div>
+    </div>
+  </section>
+
+  <footer class="sheet">
+    <p><b>Resultados preliminares.</b> Os dados reproduzem o que cada grupo declarou no Diretório do CNPq e podem estar desatualizados. Se encontrar um erro, use o formulário acima.</p>
+    <p>Autoras: Gislaine Leoncio Motti (UFMG), Danusa de Almeida Machado, Regina Lúcia dos Reis e Silva, Carolina Assman (UNISC), Gláucia Rezende Tavares, Marília A. de Freitas Aguiar e Ivânia Jann Luna (UFSC).</p>
+    <p class="copy">Contato: <span id="mail">gisamotti@gmail.com</span><button type="button" id="copy">Copiar</button></p>
+    <p id="ig-row" hidden>ABMLuto no Instagram: <a id="ig" href="#" target="_blank" rel="noopener"></a></p>
+  </footer>
+</div>
+
+<script>
+/* Links a preencher: deixe "" enquanto não existir; o botão aparece como "em breve". */
+const LINKS = {
+  formulario: "https://docs.google.com/forms/d/e/1FAIpQLSfUSSXdaKWCTWe9bmZJzgo1Yk7UY1u-5xi1Zu7mECGRDzUlGg/viewform",
+  planilha: "https://docs.google.com/spreadsheets/d/1rN8WHgSHvs-cpqkHEWPovuBqLgzD7OhzN7yKrprrVO0/edit?usp=sharing",
+  instagram: "https://www.instagram.com/abmluto/"
+};
+const DATA = [{"nome": "NIPPEL - Núcleo Interdisciplinar de Pesquisa em Perdas e Luto", "sigla": "USP", "inst": "Universidade de São Paulo - USP", "uf": "SP", "reg": "Sudeste", "ano": 2007, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Enfermagem", "lider": "Regina Szylit e Maiara Rodrigues dos Santos"}, {"nome": "Processos psicossociais e clínicas do luto", "sigla": "UFSC", "inst": "Universidade Federal de Santa Catarina - UFSC", "uf": "SC", "reg": "Sul", "ano": 2017, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Ivania Jann Luna"}, {"nome": "Governança do Setor do Luto", "sigla": "UFPE", "inst": "Universidade Federal de Pernambuco - UFPE", "uf": "PE", "reg": "Nordeste", "ano": 2020, "sit": "Grupo em preenchimento", "area": "Ciências Sociais Aplicadas", "sub": "Administração", "lider": "Fernando Gentil de Souza e Jamille Carla Oliveira Araújo"}, {"nome": "O cuidado com a vida que se apresenta nas situações da morte, do morrer e do processo de luto - contribuições da psicologia", "sigla": "UNAERP", "inst": "Universidade de Ribeirão Preto - UNAERP", "uf": "SP", "reg": "Sudeste", "ano": 2022, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Juliana Vendruscolo"}, {"nome": "Corpo, luto, memória e processos de subjetivação", "sigla": "UVA/RJ", "inst": "Universidade Veiga de Almeida - UVA/RJ", "uf": "RJ", "reg": "Sudeste", "ano": 2022, "sit": "Grupo não atualizado", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Joana de Vilhena Novaes"}, {"nome": "Estudos sobre a morte, o morrer e o processo de luto", "sigla": "UNAERP", "inst": "Universidade de Ribeirão Preto - UNAERP", "uf": "SP", "reg": "Sudeste", "ano": 2020, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Saúde Coletiva", "lider": "Juliana Vendruscolo"}, {"nome": "LABORATORIO DE ESTUDOS SOBRE O LUTO, PROMOÇÃO DA SAÚDE, EDUCAÇÃO E SENTIDOS- LELPSES", "sigla": "UFPA", "inst": "Universidade Federal do Pará - UFPA", "uf": "PA", "reg": "Norte", "ano": 2024, "sit": "Grupo em preenchimento", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Airle Miranda de Souza"}, {"nome": "Laboratório de Estudos sobre Luto e Cuidados Paliativos", "sigla": "UNIFOR", "inst": "Universidade de Fortaleza - UNIFOR", "uf": "CE", "reg": "Nordeste", "ano": 2024, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Fernanda Gomes Lopes"}, {"nome": "PROALU - Grupo de Pesquisa em Luto e Saúde Mental", "sigla": "UNIFESP", "inst": "Universidade Federal de São Paulo - UNIFESP", "uf": "SP", "reg": "Sudeste", "ano": 2026, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Medicina", "lider": "Samantha Mucci"}, {"nome": "Imagens da Morte: a morte e o morrer no mundo Ibero-Americano", "sigla": "UNIRIO", "inst": "Universidade Federal do Estado do Rio de Janeiro - UNIRIO", "uf": "RJ", "reg": "Sudeste", "ano": 2011, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "História", "lider": "Claudia Rodrigues e Cícero Joaquim dos Santos"}, {"nome": "Direito à morte digna: a autodeterminação do paciente terminal no Direito Alemão", "sigla": "UFES", "inst": "Universidade Federal do Espírito Santo - UFES", "uf": "ES", "reg": "Sudeste", "ano": 2014, "sit": "Grupo em preenchimento", "area": "Ciências Sociais Aplicadas", "sub": "Direito", "lider": "Margareth Vetis Zaganelli"}, {"nome": "Representações da morte na literatura e nas artes", "sigla": "UEL", "inst": "Universidade Estadual de Londrina - UEL", "uf": "PR", "reg": "Sul", "ano": 2000, "sit": "Certificado pela instituição", "area": "Linguística, Letras e Artes", "sub": "Letras", "lider": "Alamir Aquino Correa"}, {"nome": "GRUPO DE ESTUDOS SOBRE A MORTE E O MORRER", "sigla": "UPE", "inst": "Universidade de Pernambuco - UPE", "uf": "PE", "reg": "Nordeste", "ano": 2018, "sit": "Grupo em preenchimento", "area": "Ciências da Saúde", "sub": "Medicina", "lider": "Tânia Maria Lago Falcão"}, {"nome": "CATRINA: grupo de estudos e pesquisa em morte, vida e ética", "sigla": "FAE", "inst": "FAE Centro Universitário - FAE", "uf": "PR", "reg": "Sul", "ano": 2018, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Inaê Benchaya Duarte e Francisleine Moleta"}, {"nome": "Vulnerabilidades dos processos de vida e de morte", "sigla": "UNICENTRO", "inst": "Universidade Estadual do Centro-Oeste - UNICENTRO", "uf": "PR", "reg": "Sul", "ano": 2021, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Saúde Coletiva", "lider": "Cristiana Magni"}, {"nome": "DEVIR: Religião, Contemporaneidade, Morte e Imagens", "sigla": "UFPE", "inst": "Universidade Federal de Pernambuco - UFPE", "uf": "PE", "reg": "Nordeste", "ano": 2019, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Antropologia", "lider": "Mísia Lins Reesink e Polyanny Lílian do Amaral Braz"}, {"nome": "Grupo de Estudos sobre a Morte e o Morrer- GEMM", "sigla": "FUIT", "inst": "Fundação Universidade de Itaúna - FUIT", "uf": "MG", "reg": "Sudeste", "ano": 2021, "sit": "Grupo em preenchimento", "area": "Ciências da Saúde", "sub": "Medicina", "lider": "Lúcio Aparecido Moreira"}, {"nome": "Laboratório de Antropologia da Morte (L'AMort)", "sigla": "UFC", "inst": "Universidade Federal do Ceará - UFC", "uf": "CE", "reg": "Nordeste", "ano": 2022, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Antropologia", "lider": "Martinho Tota Filho Rocha de Araújo"}, {"nome": "Morte e Cuidado A mulher de pés descalços", "sigla": "UFU", "inst": "Universidade Federal de Uberlândia - UFU", "uf": "MG", "reg": "Sudeste", "ano": 2024, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Denise Stefanoni Combinato"}, {"nome": "Educação para a morte e cuidados paliativos", "sigla": "FACERES", "inst": "Faculdade Faceres - FACERES", "uf": "SP", "reg": "Sudeste", "ano": 2024, "sit": "Aguardando certificação", "area": "Ciências da Saúde", "sub": "Medicina", "lider": "Talita Caroline de Oliveira Valentino e Patricia Maluf Cury"}, {"nome": "Vida, morte e suas materialidades", "sigla": "UFMG", "inst": "Universidade Federal de Minas Gerais - UFMG", "uf": "MG", "reg": "Sudeste", "ano": 2025, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Arqueologia", "lider": "Daniela Magalhaes Klökler"}, {"nome": "NUCLEO DE ESTUDOS E PESQUISA EM TANATOLOGIA E SUBJETIVIDADES", "sigla": "UFRJ", "inst": "Universidade Federal do Rio de Janeiro - UFRJ", "uf": "RJ", "reg": "Sudeste", "ano": 2004, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Rogério Lustosa Bastos e Lizete Quelha de Souza"}, {"nome": "BIOTANATUS - Rede Transdisciplinar de Estudos sobre Biotanatologia, Investigação Narrativa e Formação Humana", "sigla": "UESB", "inst": "Universidade Estadual do Sudoeste da Bahia - UESB", "uf": "BA", "reg": "Nordeste", "ano": 2018, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Educação", "lider": "Clédson Luciano Miranda dos Santos e Carina Marinho Picanço"}, {"nome": "Laboratório de Estudos em Tanatologia e Humanização das práticas em Saúde-LETHS", "sigla": "UFRN", "inst": "Universidade Federal do Rio Grande do Norte - UFRN", "uf": "RN", "reg": "Nordeste", "ano": 2012, "sit": "Grupo não atualizado", "area": "Ciências Humanas", "sub": "Psicologia", "lider": "Geórgia Sibele Nogueira da Silva e Marlos Alves Bezerra"}, {"nome": "Thanos: grupo interdisciplinar de pesquisa em religião e tanatologia", "sigla": "UNASP", "inst": "Centro Universitário Adventista de São Paulo - UNASP", "uf": "SP", "reg": "Sudeste", "ano": 2021, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Teologia", "lider": "Allan Macedo de Novaes"}, {"nome": "Políticas de Educação em Saúde: Espiritualidade e Tanatologia (PSET)", "sigla": "UNICEUMA", "inst": "Universidade Ceuma - UNICEUMA", "uf": "MA", "reg": "Nordeste", "ano": 2019, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Medicina", "lider": "Maria Raimunda Chagas Silva"}, {"nome": "Núcleo de Estudos em Contexto Hospitalar, Cuidados Paliativos e Ocupações", "sigla": "UnB", "inst": "Universidade de Brasília - UnB", "uf": "DF", "reg": "Centro-Oeste", "ano": 2023, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Fisioterapia e Terapia Ocupacional", "lider": "Leticia Meda Vendrusculo-Fangel"}, {"nome": "NEPALI - Núcleo de Estudos, Ensino e Pesquisa em Cuidados Paliativos", "sigla": "UFMS", "inst": "Universidade Federal de Mato Grosso do Sul - UFMS", "uf": "MS", "reg": "Centro-Oeste", "ano": 2025, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Saúde Coletiva", "lider": "Francine Ramos De Miranda"}, {"nome": "Limiar: Grupo de Pesquisa sobre Suicídio e outras Práticas Autolesivas", "sigla": "UFES", "inst": "Universidade Federal do Espírito Santo - UFES", "uf": "ES", "reg": "Sudeste", "ano": 2017, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Filosofia", "lider": "Lúcio Vaz de Oliveira"}, {"nome": "LYSIS - Núcleo de Pesquisas e Estudos sobre Suicídio e Modos de Vida", "sigla": "UFPEL", "inst": "Universidade Federal de Pelotas - UFPEL", "uf": "RS", "reg": "Sul", "ano": 2023, "sit": "Certificado pela instituição", "area": "Ciências Humanas", "sub": "Sociologia", "lider": " Alexandre Henrique dos Reis e Danielle Alessandra Pizziolo"}, {"nome": "Observatório de Violência, Suicídio e Políticas Públicas - OBSVIDA", "sigla": "UNIR", "inst": "Universidade Federal de Rondônia - UNIR", "uf": "RO", "reg": "Norte", "ano": 2015, "sit": "Certificado pela instituição", "area": "Ciências da Saúde", "sub": "Saúde Coletiva", "lider": "Wilma Suely Batista Pereira"}];
+
+function setLink(id, url, soon){
+  const a = document.getElementById(id);
+  if (url) { a.href = url; }
+  else { a.setAttribute("aria-disabled","true"); a.removeAttribute("href"); a.querySelector("small").textContent = soon; }
+}
+setLink("btn-form", LINKS.formulario, "Formulário disponível em breve");
+setLink("btn-sheet", LINKS.planilha, "Planilha disponível em breve");
+if (LINKS.instagram){ const ig=document.getElementById("ig"); ig.href=LINKS.instagram; ig.textContent="@abmluto"; document.getElementById("ig-row").hidden=false; }
+
+document.getElementById("copy").addEventListener("click", async e => {
+  const t = document.getElementById("mail").textContent;
+  try { await navigator.clipboard.writeText(t); e.target.textContent = "Copiado"; }
+  catch { const r=document.createRange(); r.selectNodeContents(document.getElementById("mail")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent="Selecionado"; }
+});
+
+/* Gráfico de barras por ano */
+(function(){
+  const svg = document.getElementById("chart"), NS="http://www.w3.org/2000/svg";
+  const years=[]; for(let y=2000;y<=2026;y++) years.push(y);
+  const n = {}; DATA.forEach(d=>n[d.ano]=(n[d.ano]||0)+1);
+  const W=640,H=210,L=28,R=6,T=10,B=34, max=4;
+  const bw=(W-L-R)/years.length;
+  const yS=v=>T+(H-T-B)*(1-v/max);
+  const el=(t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e};
+  for(let v=0;v<=max;v++){
+    el("line",{x1:L,x2:W-R,y1:yS(v),y2:yS(v),stroke:"var(--line)","stroke-width":1});
+    el("text",{x:L-8,y:yS(v)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)","font-family":"var(--body)"},v);
+  }
+  years.forEach((y,i)=>{
+    const v=n[y]||0, x=L+i*bw+bw*.15, w=bw*.7;
+    if(v) el("rect",{x,y:yS(v),width:w,height:yS(0)-yS(v),rx:2,fill:y>=2020?"var(--accent)":"var(--accent-soft)"}).appendChild(Object.assign(document.createElementNS(NS,"title"),{textContent:`${y}: ${v} grupo${v>1?"s":""}`}));
+    if(y%5===0||y===2026) el("text",{x:x+w/2,y:H-B+18,"text-anchor":"middle","font-size":11,fill:"var(--muted)","font-family":"var(--body)"},y);
+  });
+})();
+
+/* Lista filtrável */
+const $q=document.getElementById("q"),$r=document.getElementById("fr"),$a=document.getElementById("fa"),$l=document.getElementById("list"),$c=document.getElementById("count");
+const uniq=k=>[...new Set(DATA.map(d=>d[k]))].sort((a,b)=>a.localeCompare(b,"pt"));
+uniq("reg").forEach(v=>$r.add(new Option(v,v)));
+uniq("area").forEach(v=>$a.add(new Option(v,v)));
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+DATA.forEach(d=>d._s=norm([d.nome,d.sigla,d.inst,d.uf,d.area,d.sub,d.lider].join(" ")));
+DATA.sort((a,b)=>b.ano-a.ano||a.nome.localeCompare(b.nome,"pt"));
+
+function card(d){
+  const li=document.createElement("li"); li.className="g";
+  const h=document.createElement("h3"); h.textContent=d.nome; li.appendChild(h);
+  const inst=document.createElement("p"); inst.className="inst"; inst.textContent=`${d.inst} · ${d.uf}`; li.appendChild(inst);
+  const m=document.createElement("div"); m.className="meta";
+  const chip=(t,c)=>{const s=document.createElement("span");s.className="chip"+(c?" "+c:"");s.textContent=t;m.appendChild(s)};
+  chip(`Desde ${d.ano}`); chip(d.sub);
+  if(d.sit!=="Certificado pela instituição") chip(d.sit,"warn");
+  li.appendChild(m);
+  const ld=document.createElement("p"); ld.className="lider"; ld.textContent=`Liderança: ${d.lider}`; li.appendChild(ld);
+  return li;
+}
+function render(){
+  const q=norm($q.value.trim()), r=$r.value, a=$a.value;
+  const rows=DATA.filter(d=>(!r||d.reg===r)&&(!a||d.area===a)&&(!q||d._s.includes(q)));
+  $l.replaceChildren(...rows.map(card));
+  $c.textContent = rows.length===DATA.length ? `${rows.length} grupos, dos mais recentes aos mais antigos` : `${rows.length} de ${DATA.length} grupos`;
+  if(!rows.length){const li=document.createElement("li");li.className="empty";li.textContent="Nenhum grupo encontrado com esses filtros. Se você conhece um grupo que deveria estar aqui, indique pelo formulário.";$l.appendChild(li)}
+}
+[$q,$r,$a].forEach(e=>e.addEventListener("input",render));
+render();
+</script>
+
+</body>
+</html>
